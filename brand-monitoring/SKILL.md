@@ -1,7 +1,5 @@
 ---
 name: brand-monitoring
-version: 1.0.0
-author: Nexscope AI
 description: "Brand monitoring tool for tracking mentions across social media platforms. Monitor Reddit, Google News, YouTube, and DuckDuckGo for brand mentions. Includes sentiment analysis, trend tracking, crisis detection, and competitor comparison. No API key required for basic monitoring."
 metadata: {"nexscope":{"emoji":"📡","category":"ecommerce"}}
 ---
@@ -58,10 +56,11 @@ python3 scripts/monitor.py "YourBrand"
 ```bash
 python3 scripts/monitor.py '{
   "brand": "YourBrand",
-  "competitors": ["CompA", "CompB"],
-  "platforms": ["reddit", "google_news"]
+  "competitors": ["CompA", "CompB"]
 }'
 ```
+
+The bundled script generates demo mentions for analysis. It does not fetch live platform data.
 
 ### Demo Mode
 
