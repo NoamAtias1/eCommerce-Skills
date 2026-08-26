@@ -21,6 +21,7 @@ Datasource (Lite):
 Version: 1.0.0
 """
 
+import argparse
 import json
 import re
 from dataclasses import dataclass, field
@@ -28,7 +29,6 @@ from typing import List, Dict, Optional, Tuple
 from enum import Enum
 from datetime import datetime, timedelta
 from collections import Counter
-import sys
 
 
 class Sentiment(Enum):
@@ -166,6 +166,15 @@ class MonitoringReport:
     top_negative: List[Mention]
     summary: str
     summary_zh: str
+
+
+@dataclass(frozen=True)
+class CliConfig:
+    """Validated command-line monitoring configuration."""
+
+    brand: str
+    competitors: Tuple[str, ...]
+    lang: str
 
 
 # ============================================================
@@ -614,12 +623,99 @@ def format_report(report: MonitoringReport, lang: str = "en") -> str:
 # CLI
 # ============================================================
 
-def main():
-    lang = "zh" if "--zh" in sys.argv else "en"
-    brand = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "TechBrand"
-    
-    report = monitor_brand(brand, competitors=["CompetitorA", "CompetitorB"])
-    print(format_report(report, lang))
+def parse_monitor_input(
+    raw_input: Optional[str],
+    demo: bool = False,
+    lang: str = "en",
+) -> CliConfig:
+    """Parse a brand name or the documented JSON monitoring configuration."""
+
+    if demo and raw_input is not None:
+        raise ValueError("--demo cannot be combined with a brand or JSON input")
+
+    if demo or raw_input is None:
+        return CliConfig(
+            brand="TechBrand",
+            competitors=("CompetitorA", "CompetitorB"),
+            lang=lang,
+        )
+
+    normalized_input = raw_input.strip()
+    if not normalized_input:
+        raise ValueError("brand must not be empty")
+
+    if not normalized_input.startswith("{"):
+        return CliConfig(brand=normalized_input, competitors=(), lang=lang)
+
+    try:
+        payload = json.loads(normalized_input)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"invalid JSON input: {error.msg}") from error
+
+    if not isinstance(payload, dict):
+        raise ValueError("JSON input must be an object")
+
+    unsupported_fields = sorted(set(payload) - {"brand", "competitors"})
+    if unsupported_fields:
+        fields = ", ".join(unsupported_fields)
+        raise ValueError(f"unsupported JSON field(s): {fields}")
+
+    brand = payload.get("brand")
+    if not isinstance(brand, str) or not brand.strip():
+        raise ValueError("JSON field 'brand' must be a non-empty string")
+
+    competitors = payload.get("competitors", [])
+    if not isinstance(competitors, list) or any(
+        not isinstance(competitor, str) or not competitor.strip()
+        for competitor in competitors
+    ):
+        raise ValueError(
+            "JSON field 'competitors' must be a list of non-empty strings"
+        )
+
+    return CliConfig(
+        brand=brand.strip(),
+        competitors=tuple(competitor.strip() for competitor in competitors),
+        lang=lang,
+    )
+
+
+def parse_cli_args(argv: Optional[List[str]] = None) -> CliConfig:
+    """Parse command-line arguments into a validated monitoring configuration."""
+
+    parser = argparse.ArgumentParser(
+        description="Generate a demo brand monitoring report.",
+    )
+    parser.add_argument("input", nargs="?", help="Brand name or JSON configuration")
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Use the bundled demo brand and competitors",
+    )
+    parser.add_argument(
+        "--zh",
+        action="store_true",
+        help="Render the report in Chinese",
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        return parse_monitor_input(
+            raw_input=args.input,
+            demo=args.demo,
+            lang="zh" if args.zh else "en",
+        )
+    except ValueError as error:
+        parser.error(str(error))
+
+
+def main() -> None:
+    config = parse_cli_args()
+    report = monitor_brand(
+        config.brand,
+        competitors=list(config.competitors),
+    )
+    print(format_report(report, config.lang))
 
 
 if __name__ == "__main__":
