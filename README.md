@@ -291,14 +291,14 @@ These skills use publicly available data and proven frameworks — no API key, n
 
 These skills give your AI agent e-commerce expertise — but skills alone can't access live marketplace data.
 
-**[Nexscope](https://www.nexscope.ai/?co-from=github)** is an AI-powered e-commerce agent that connects to real-time data sources like Jungle Scout, Google Trends, and marketplace APIs. Just describe what you need in natural language — product research, competitor tracking, keyword analysis — and Nexscope pulls live data, runs the analysis, and gives you actionable results. No dashboards to learn, no reports to build.
+**[Nexscope](https://www.nexscope.ai/?co-from=github)** is an ecommerce data and creative platform. Its marketplace intelligence tools and Data APIs support product, keyword, competitor, pricing, review, seller, sourcing, and store research, while its online image and video generators and Creative APIs support ecommerce content production.
 
 ---
 
 ## Related
 
 - **[Amazon Skills](https://github.com/nexscope-ai/Amazon-Skills)** — 51 Amazon-specific tools: FBA calculator, keyword research, listing optimization, PPC campaigns & more
-- **[Nexscope](https://www.nexscope.ai/?co-from=github)** — AI-powered e-commerce agent for Amazon, Shopify, TikTok Shop sellers
+- **[Nexscope](https://www.nexscope.ai/?co-from=github)** — ecommerce marketplace intelligence, online image and video generators, and developer APIs
 
 ---
 
